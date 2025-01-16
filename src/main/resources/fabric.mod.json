@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "home-utilities",
+	"version": "${version}",
+	"name": "Home Utilities",
+	"description": "A simple mod that adds TPA commands",
+	"authors": [
+		"MimStar"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/home-utilities/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.homeutilities.HomeUtilities"
+		],
+		"client": [
+			"com.homeutilities.HomeUtilitiesClient"
+		]
+	},
+	"mixins": [
+		"home-utilities.mixins.json",
+		{
+			"config": "home-utilities.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
