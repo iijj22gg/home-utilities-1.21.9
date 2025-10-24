@@ -13,6 +13,13 @@ import net.minecraft.world.PersistentStateType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.datafixer.DataFixTypes;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -32,9 +39,14 @@ public class StateSaverAndLoader extends PersistentState {
             playerNbt.putString("language",playerData.getLanguage());
             playersNbt.put(uuid.toString(),playerNbt);
         }));
+        
+        NbtCompound publicHomesCompound = new NbtCompound();
+        publicHomesCompound.putString("homes",publicHomes.toString());
+
+
         nbt.put("players", playersNbt);
-        nbt.putString("publichomes",publicHomes.toString());
-        nbt.putString("settings",settings.toString());
+        nbt.put("publicHomes", publicHomesCompound);
+        nbt.putString("settings", settings.toString());
         return nbt;
     }
 
@@ -51,25 +63,32 @@ public class StateSaverAndLoader extends PersistentState {
         });
 
         // Add null check for publicHomes
-        String publicHomesString = tag.getString("publichomes").orElse("");
+        NbtCompound publicHomesCompound = tag.getCompound("publicHomes").orElse(new NbtCompound());
+        String publicHomesString = publicHomesCompound.getString("homes").orElse("");
         if (!publicHomesString.isEmpty()) {
             state.publicHomes.setHomes(publicHomesString);
         }
 
-        String settingsString = tag.getString("settings").orElse("");
-        if (!settingsString.isEmpty()) {
-            state.settings.setSettings(settingsString);
-        }
+        
+        
+        state.settings.setSettings(tag.getString("settings").orElse(""));
+
+        // state.markDirty();
 
         return state;
     }
+
+    public static final Codec<StateSaverAndLoader> CODEC =
+        NbtCompound.CODEC.xmap(
+            nbt -> StateSaverAndLoader.createFromNbt(nbt, null), // decode
+            state -> state.writeNbt(new NbtCompound(), null)      // encode
+        );
 
 
     private static final PersistentStateType<StateSaverAndLoader> type = new PersistentStateType<>(
             (String) HomeUtilities.MOD_ID,
             StateSaverAndLoader::new,
-            // CODEC,
-            null,
+            CODEC,
             DataFixTypes.PLAYER
     );
 
@@ -79,7 +98,7 @@ public class StateSaverAndLoader extends PersistentState {
 
         StateSaverAndLoader state = serverWorld.getPersistentStateManager().getOrCreate(type);
         
-        state.markDirty();
+        // state.markDirty();
  
         return state;
     }
