@@ -18,7 +18,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -46,7 +45,7 @@ public class StateSaverAndLoader extends PersistentState {
 
         nbt.put("players", playersNbt);
         nbt.put("publicHomes", publicHomesCompound);
-        nbt.putString("settings", settings.toString());
+        nbt.putString("settings",settings.toString());
         return nbt;
     }
 
@@ -69,9 +68,10 @@ public class StateSaverAndLoader extends PersistentState {
             state.publicHomes.setHomes(publicHomesString);
         }
 
-        
-        
-        state.settings.setSettings(tag.getString("settings").orElse(""));
+        String settingsString = tag.getString("settings").orElse("");
+        if (!settingsString.isEmpty()) {
+            state.settings.setSettings(settingsString);
+        }
 
         // state.markDirty();
 
